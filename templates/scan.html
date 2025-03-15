@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeechAura - Scan Speech</title>
+    
+    <!-- Material Design and Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #fafafa;
+            color: #212121;
+        }
+        .navbar {
+            background-color: #3f51b5;
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        .section {
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .section:nth-child(even) {
+            background-color: #e8eaf6;
+        }
+        .section:nth-child(odd) {
+            background-color: #c5cae9;
+        }
+        .file-upload-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: auto;
+        }
+        .file-upload-container input {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #3f51b5;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .dropdown-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #303f9f;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+        }
+        .results-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin-top: 30px;
+        }
+        .footer {
+            background-color: #303f9f;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='logo.png') }}" height="40" class="d-inline-block align-top" alt="Logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="mdi mdi-menu"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home')}}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('about')}}">About</a></li>
+                    <li class="nav-item active"><a class="nav-link" href="{{ url_for('scan')}}">Scan</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <section class="section">
+        <div class="container">
+            <h2>Upload Your Speech</h2>
+            <p>Select an audio file to analyze its emotional impact.</p>
+            <div class="file-upload-container">
+                <form id="scan-form" method="POST" enctype="multipart/form-data" action="{{ url_for('process_scan') }}">
+                    <input type="file" id="file-input" name="audio_file" accept=".mp3,.wav">
+                    
+                    <div class="dropdown-container">
+                        <label for="speech-dropdown">Select Language</label>
+                        <select id="speech-dropdown" name="speech" class="form-select">
+                            <option value="English">English</option>
+                            <option value="Hindi">Hindi</option>
+                        </select>
+                    </div>
+                    
+                    <div class="dropdown-container">
+                        <label for="emotion-dropdown">Select Intended Emotion</label>
+                        <select id="emotion-dropdown" name="emotion" class="form-select">
+                            <option value="Happy">Happy</option>
+                            <option value="Sad">Sad</option>
+                            <option value="Angry">Angry</option>
+                            <option value="Neutral">Neutral</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary mt-3">Analyze Speech</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    {% if prediction %}
+    <section class="section">
+        <div class="container results-container">
+            <h3>Analysis Results</h3>
+            <p><strong>Intended Emotion:</strong> {% if emotion %} {{ emotion }} {% else %} Not Provided {% endif %}</p>
+            <p><strong>Detected Emotion:</strong> {% if prediction %} {{ prediction }} {% else %} Not Analyzed Yet {% endif %}</p>
+            <p>
+              {% if emotion=="Happy" %}
+            To convey happiness in your speech, focus on using an upbeat tone and positive language. Speak with energy and enthusiasm, 
+            emphasizing key words that evoke joy or excitement. Incorporate uplifting imagery and anecdotes that resonate with your 
+            audience. Smiling while you speak naturally brightens your voice and makes your words sound more engaging. Use a quicker 
+            pace, but avoid rushing, as this can dilute the emotional impact. Additionally, vary your pitch to add a musical quality 
+            to your delivery, emphasizing higher tones to reflect cheerfulness. Include affirming phrases such as “This is incredible” 
+            or “We’re so fortunate,” and maintain eye contact to create a warm connection. Happy speeches also benefit from inclusive 
+            language that draws the audience into your positivity, like “We’ve all experienced moments of pure delight.” Ending with an 
+            inspiring call to action or gratitude reinforces the cheerful tone and leaves a lasting impression.
+            {% endif %}
+
+            {% if emotion=="Sad" %}
+            To make your speech sound sad, focus on a softer, slower delivery with a lower pitch to reflect somberness. Use poignant 
+            language that evokes empathy and vulnerability, such as “heartbreaking,” “loss,” or “painful.” Pauses are powerful tools to 
+            let emotions settle and emphasize the weight of your words. Speak in a reflective tone, and let your voice tremble slightly 
+            to convey genuine emotion. Share personal or relatable stories that allow your audience to connect emotionally. Avoid 
+            dramatic overtones, as authenticity is key to moving your listeners. Use metaphors and imagery that evoke melancholy, 
+            such as “a clouded sky” or “the echo of silence.” Dropping the volume at the end of sentences creates a sense of finality
+            and loss. Additionally, avoid forced smiles or upbeat gestures, as these can dilute the emotional resonance. Conclude with
+            a message of reflection or hope to provide solace amidst sadness.
+            {% endif %}
+
+            {% if emotion=="Angry" %}
+            To sound angry in your speech, adopt a firm, forceful tone with sharper enunciation. Use a steady, deliberate pace, 
+            occasionally quickening to reflect rising passion. Emphasize powerful, emotive words such as “outrageous,” “unacceptable,” 
+            or “injustice” to convey indignation. Adjust your pitch to rise during moments of intense emotion, and lower it for stern 
+            emphasis. Utilize rhetorical questions like “How could this happen?” to challenge your audience and provoke thought. Avoid 
+            monotony by varying your volume and stressing key phrases. Facial expressions and gestures should align with your words, 
+            displaying tension or frustration to reinforce your tone. Engage in purposeful repetition to underline critical points, 
+            e.g., “This is not right—this cannot stand.” While anger can be impactful, avoid hostility or yelling, as it may alienate 
+            listeners. Conclude with a decisive call to action, channeling anger into a constructive resolution.
+            {% endif %}
+
+            {% if emotion=="Neutral" %}
+            To achieve a neutral tone, balance your speech with a steady, measured delivery. 
+            Speak at a moderate pace with even volume and pitch, avoiding extremes in either direction. Use language that is factual and 
+            objective, steering clear of overly emotional or charged words. Incorporate transitional phrases like “On the one hand” and 
+            “On the other hand” to maintain an impartial perspective. Your tone should be calm and composed, fostering trust and 
+            professionalism. Body language is equally important—keep gestures minimal and expressions controlled to avoid signaling bias. 
+            Structure your speech to present balanced viewpoints, using evidence and logic to support your statements. Neutrality doesn’t 
+            mean monotony; vary your cadence slightly to retain listener engagement without tipping into emotional territory. End with an 
+            open-ended or thought-provoking statement, encouraging the audience to reflect and form their own opinions while respecting 
+            the balanced tone of your delivery.
+              {% endif %}
+            </p>
+        </div>
+    </section>
+    {% endif %}
+    <footer class="footer">
+        <p>&copy; 2025 SpeechAura | Elevate Your Public Speaking</p>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
